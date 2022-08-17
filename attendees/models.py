@@ -19,6 +19,20 @@ class Attendee(models.Model):
         on_delete=models.CASCADE,
     )
 
+    def create_badge(self):
+        self.badge = Badge.objects.get()
+        if self.badge:
+            return self.badge
+        else:
+            Badge.objects.create(attendee=self)
+
+    # Try and Except Option
+    #  def create_badge(self):
+    #     try:
+    #         self.badge
+    #     except ObjectDoesNotExist:
+    #         Badge.objects.create(attendee=self)
+
     def __str__(self):
         return self.name
 
