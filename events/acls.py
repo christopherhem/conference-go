@@ -21,7 +21,7 @@ def get_lat_lon(city, state):
     res = requests.get(url, params=params)
     the_json = res.json()
     lat = the_json[0]["lat"]
-    lon = the_json[0]["lat"]
+    lon = the_json[0]["lon"]
     return lat, lon
 
 

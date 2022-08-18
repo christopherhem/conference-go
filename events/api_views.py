@@ -122,6 +122,8 @@ def api_show_conference(request, pk):
         weather = get_weather(
             conference.location.city, conference.location.state
         )
+        # conference.location.city, conference.location.state
+        # "city", "state"
         return JsonResponse(
             {"conference": conference, "weather": weather},
             encoder=ConferenceDetailEncoder,
