@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from common.json import ModelEncoder
 from django.views.decorators.http import require_http_methods
 
+from .acls import get_photo, get_weather
 from .models import Conference, Location, State
 
 
@@ -17,6 +18,7 @@ class LocationDetailEncoder(ModelEncoder):
         "name",
         "city",
         "room_count",
+        "picture_url",
         "created",
         "updated",
     ]
@@ -117,8 +119,13 @@ def api_show_conference(request, pk):
     """
     if request.method == "GET":
         conference = Conference.objects.get(id=pk)
+        weather = get_weather(
+            conference.location.city, conference.location.state
+        )
         return JsonResponse(
-            conference, encoder=ConferenceDetailEncoder, safe=False
+            {"conference": conference, "weather": weather},
+            encoder=ConferenceDetailEncoder,
+            safe=False,
         )
     elif request.method == "DELETE":
         count, _ = Conference.objects.filter(id=pk).delete()
@@ -137,7 +144,9 @@ def api_show_conference(request, pk):
             Conference.objects.filter(id=pk).update(**content)
             conference = Conference.objects.get(id=pk)
             return JsonResponse(
-                conference, encoder=ConferenceDetailEncoder, safe=False
+                conference,
+                encoder=ConferenceDetailEncoder,
+                safe=False,
             )
         except Conference.DoesNotExist:
             return JsonResponse({"message": "Invalid Conference id"})
@@ -171,6 +180,10 @@ def api_list_locations(request):
         )
     else:
         content = json.loads(request.body)
+
+        picture_url_dict = get_photo(content["city"], content["state"])
+        content.update(picture_url_dict)
+
         try:
             state = State.objects.get(abbreviation=content["state"])
             content["state"] = state
@@ -178,6 +191,7 @@ def api_list_locations(request):
             return JsonResponse(
                 {"message": "Invalid state abbreviation"}, status=400
             )
+
         location = Location.objects.create(**content)
         return JsonResponse(
             location,
@@ -220,6 +234,7 @@ def api_show_location(request, pk):
             if "state" in content:
                 state = State.objects.get(abbreviation=content["state"])
                 content["state"] = state
+
         except State.DoesNotExist:
             return JsonResponse(
                 {"message": "Invalid state abbreviation"}, status=400
