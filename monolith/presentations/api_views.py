@@ -135,6 +135,8 @@ def api_approve_presentation(request, pk):
     presentation = Presentation.objects.get(id=pk)
     presentation.approve()
 
+    # Best Practice to minimize code inside the views
+    # Place this code into another file Producer and call the function here !
     parameters = pika.ConnectionParameters(host="rabbitmq")
     connection = pika.BlockingConnection(parameters)
     channel = connection.channel()
@@ -164,6 +166,8 @@ def api_reject_presentation(request, pk):
     presentation = Presentation.objects.get(id=pk)
     presentation.reject()
 
+    # Best Practice to minimize code inside the views
+    # Place this code into another file Producer and call the function here !
     parameters = pika.ConnectionParameters(host="rabbitmq")
     connection = pika.BlockingConnection(parameters)
     channel = connection.channel()

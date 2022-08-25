@@ -23,6 +23,7 @@ while True:
                 message=f"Congratulations {content['presenter_name']}! Your {content['title']} presentation has been approved!",
                 from_email="staff@conference-go.com",
                 recipient_list=[f"{content['presenter_email']}"],
+                fail_silently=False,
             )
 
         def process_rejected_message(ch, method, properties, body):
